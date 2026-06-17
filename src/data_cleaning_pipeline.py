@@ -8,12 +8,18 @@ def run_data_cleaning():
     print("STARTING THE DATA CLEANING PIPELINE")
     print("=========================================")
     
-    # 1. Database Connection using your exact password
-    engine = create_engine("postgresql://postgres:Aminiki31195!@localhost:5432/Berlin_Airbnb")
+    # 1. Database Connection (مع إضافة حماية الترميز)
+    engine = create_engine("postgresql://postgres:postgres@localhost:5432/Berlin_Airbnb", 
+                           connect_args={"options": "-c client_encoding=LATIN1"})
     
     print("Step 1: Reading raw data from pgAdmin 4 (airbnb_raw)...")
     try:
         df = pd.read_sql("SELECT * FROM airbnb_raw", engine)
+        
+        # حماية إضافية: تحويل أي أحرف غير مفهومة لترميز UTF-8
+        for col in df.select_dtypes(include=['object']).columns:
+            df[col] = df[col].apply(lambda x: str(x).encode('latin-1', 'ignore').decode('utf-8', 'ignore'))
+            
         print(f"[SUCCESS] Loaded {df.shape[0]} rows from the database.")
     except Exception as e:
         print(f"[ERROR] Could not read from database: {e}")
@@ -23,7 +29,7 @@ def run_data_cleaning():
     print("Step 2: Dropping 'Square Feet' column...")
     df = df.drop(columns=['Square Feet'], errors='ignore')
     
-    # 3. Clean Price column (removing symbols if any and forcing numeric)
+    # 3. Clean Price column
     print("Step 3: Cleaning 'Price' column...")
     if 'Price' in df.columns:
         if df['Price'].dtype == 'object':
@@ -46,7 +52,6 @@ def run_data_cleaning():
     # 6. Save to data/processed folder
     print("Step 6: Saving the cleaned dataset...")
     
-    # Dynamic path handling to ensure it hits data/processed/
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_path = os.path.join(base_dir, "data", "processed", "berlin_airbnb_cleaned.csv")
     

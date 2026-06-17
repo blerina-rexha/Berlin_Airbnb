@@ -16,7 +16,8 @@ def build_relational_tables():
         
     df = pd.read_csv(cleaned_path)
     print(f"[SUCCESS] Loaded {df.shape[0]} cleaned rows.")
-
+# أضف هذا السطر قبل السطر 21
+    print(df.columns.tolist())
     # 2. Handle specific text column missing values to prevent SQL Null issues
     df['Listing Name'] = df['Listing Name'].fillna('No Name')
     df['Host Name'] = df['Host Name'].fillna('Unknown Host')
@@ -44,7 +45,7 @@ def build_relational_tables():
 
     # 4. Connect to your local PostgreSQL database (pgAdmin 4)
     print("Step 3: Connecting to PostgreSQL and exporting tables...")
-    engine = create_engine("postgresql://postgres:Aminiki31195!@localhost:5432/Berlin_Airbnb")
+    engine = create_engine("postgresql://postgres:postgres@localhost:5432/Berlin_Airbnb")
 
     # Exporting the tables to pgAdmin 4
     hosts_table.to_sql('hosts', con=engine, if_exists='replace', index=False)
