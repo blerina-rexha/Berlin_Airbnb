@@ -1,0 +1,5 @@
+Model,R2 Score (%),RMSE (€)
+Linear Regression,64.22,29.14
+Random Forest,77.6,23.06
+XGBoost,78.32,22.68
+Neural Network (FFN),73.36,25.14
